@@ -1,0 +1,17 @@
+steps:
+
+1. npm install
+2. create .env and set your values, example is down
+   DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${BASE_URL}${DOCKER_PORT}/${POSTGRES_DB}
+   BASE_URL=localhost:
+   POSTGRES_USER=admin
+   POSTGRES_PASSWORD=admin
+   POSTGRES_DB=CodeBuddy
+   DOCKER_PORT=5433
+   GMAIL_USER=email
+   GMAIL_PASS=password
+   SECRET_KEY=123123
+   APP_URL=http://localhost:3000/
+3. docker compose up
+4. npx prisma migrate dev
+5. npm run seed
