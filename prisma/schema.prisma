@@ -11,13 +11,14 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   password  String
-  email     String   @unique
-  createdAt DateTime @default(dbgenerated("(timezone('utc'::text, now()) AT TIME ZONE '0')::timestamp(0)"))
-  roleId    Role     @relation(fields: [role], references: [id])
-  role      Int      @default(2)
+  email     String    @unique
+  createdAt DateTime  @default(dbgenerated("(timezone('utc'::text, now()) AT TIME ZONE '0')::timestamp(0)"))
+  roleId    Role      @relation(fields: [role], references: [id])
+  role      Int       @default(2)
   token     Token?
+  userData  UserData?
 }
 
 model Token {
@@ -33,4 +34,21 @@ model Role {
   id   Int    @id @default(autoincrement())
   type String @unique
   user User[]
+}
+
+model UserData {
+  id                  Int      @id @default(autoincrement())
+  name                String?
+  lastName            String?
+  image               String?
+  city                String?
+  country             String?
+  domesticNumber      String?
+  iternationalCountry String?
+  iternationalNumber  String?
+  facebookLink        String?
+  instagramLink       String?
+  userId              Int      @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt           DateTime @default(dbgenerated("(timezone('utc'::text, now()) AT TIME ZONE '0')::timestamp(0)"))
 }

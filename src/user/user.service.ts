@@ -13,14 +13,10 @@ import {
   LoginUserDto,
   RegisterUserDto,
   ResetPasswordDto,
-  UpdateAdminDataDto,
 } from './dto/create-user.dto,';
 import { UserDataRo } from './interface/user.interface';
 import { TokenExpiredError } from 'jsonwebtoken';
 import { generateToken } from '../helpers/utils/generateToken';
-import { join } from 'path';
-import { createWriteStream, unlink } from 'fs-extra';
-import { getUserIdAndTokenFromRequest } from '../helpers/utils/getUserIdAndTokenFromRequest';
 import { ResponseRo } from 'src/helpers/types';
 
 @Injectable()
@@ -42,7 +38,7 @@ export class UserService {
       });
 
       if (existingUser) {
-        throw new BadRequestException('Korisnim sa tim emailom već postoji');
+        throw new BadRequestException('User with same email already exists');
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -69,7 +65,7 @@ export class UserService {
       return {
         statusCode: 201,
         userData: { ...userData, token },
-        message: 'Nalog je uspješno kreiran',
+        message: 'Account created successfuly',
       };
     } catch (error) {
       throw error;
@@ -82,15 +78,16 @@ export class UserService {
 
       const user = await this.prisma.user.findUnique({
         where: { email },
+        include: { userData: true },
       });
 
       if (!user) {
-        throw new NotFoundException(`Korisnik sa $${email} emailom ne postoji`);
+        throw new NotFoundException(`User with ${email} email does not exists`);
       }
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
-        throw new BadRequestException('Pogrešna lozinka');
+        throw new BadRequestException('Wrong password');
       }
 
       const token = generateToken(user.id);
@@ -107,7 +104,7 @@ export class UserService {
       return {
         statusCode: 200,
         userData: { ...userData, token },
-        message: 'Uspješno ste ulogovani',
+        message: 'Loged in successfuly',
       };
     } catch (error) {
       throw error;
@@ -144,7 +141,7 @@ export class UserService {
       });
 
       if (!user) {
-        throw new NotFoundException('Korisnik ne postoji');
+        throw new NotFoundException('User does not exists');
       }
       const token = jwt.sign({ userId: user.id }, process.env.SECRET_KEY, {
         expiresIn: '5m',
@@ -179,7 +176,7 @@ export class UserService {
 
       return {
         statusCode: 200,
-        message: `Potvrda na email ${body.email}  je poslana`,
+        message: `Email confirmation has been sent to "${body.email}"  `,
       };
     } catch (error) {
       throw error;
@@ -201,7 +198,7 @@ export class UserService {
       });
 
       if (!user) {
-        throw new NotFoundException('Korisnik ne postoji');
+        throw new NotFoundException('User does not exists');
       }
 
       const newToken = generateToken(user.id);
@@ -210,6 +207,7 @@ export class UserService {
       const updatedUser = await this.prisma.user.update({
         where: { id: user.id },
         data: { password: hashedPassword },
+        include: { userData: true },
       });
       await this.prisma.token.update({
         where: { userId: user.id },
@@ -223,12 +221,12 @@ export class UserService {
       return {
         statusCode: 201,
         userData: { ...userData, token: newToken },
-        message: 'Lozinka je promjenjena',
+        message: 'Password changed successfuly',
       };
     } catch (error) {
       if (error instanceof TokenExpiredError) {
         throw new UnauthorizedException(
-          'Ups! Izgleda da je link za ponovno postavljanje lozinke istekao. Molimo zatražite novi link kako biste resetovali svoju lozinku',
+          'Oops! It seems that the password reset link has expired. Please request a new link to reset your password.',
         );
       }
       throw error;
