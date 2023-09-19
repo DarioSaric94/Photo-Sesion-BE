@@ -4,9 +4,11 @@ import * as cors from 'cors';
 import { UserRoleSeed } from '../prisma/seed/userRole.seed';
 import { UserModule } from './user/user.module';
 import { UserDataModule } from './userData/userData.module';
+import { YoutubeLinksModule } from './youtubeLinks/youtubeLinks.module';
+import { AlbumSesionModule } from './albumSesion/albumSesion.module';
 
 @Module({
-  imports: [UserModule, UserDataModule],
+  imports: [UserModule, UserDataModule, YoutubeLinksModule, AlbumSesionModule],
   providers: [PrismaService, UserRoleSeed],
 })
 export class AppModule implements NestModule {

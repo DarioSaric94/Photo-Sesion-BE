@@ -6,7 +6,6 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import * as jwt from 'jsonwebtoken';
 import * as nodemailer from 'nodemailer';
 import { join } from 'path';
 import { createWriteStream, unlink } from 'fs-extra';
@@ -14,7 +13,7 @@ import { createWriteStream, unlink } from 'fs-extra';
 import { TokenExpiredError } from 'jsonwebtoken';
 import { generateToken } from '../helpers/utils/generateToken';
 import { ResponseRo } from 'src/helpers/types';
-import { getUserIdAndTokenFromRequest } from 'src/helpers/utils/getUserIdAndTokenFromRequest';
+import { getUserIdAndTokenFromRequest } from '../../src/helpers/utils/getUserIdAndTokenFromRequest';
 
 @Injectable()
 export class UserDataService {
