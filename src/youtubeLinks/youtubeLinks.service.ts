@@ -8,7 +8,7 @@ export class YoutubeLinksService {
 
   async createYoutubeLinks(data: any, req: Request) {
     try {
-      const { youtubeLink1, youtubeLink2, youtubeLink3 } = data;
+      const { youtubeLink1, youtubeLink2, youtubeLink3, albumId } = data;
       const { userId } = await getUserIdAndTokenFromRequest(req);
       await this.prisma.youtubeLinks.upsert({
         where: { userId: userId },
@@ -16,11 +16,13 @@ export class YoutubeLinksService {
           youtubeLink1,
           youtubeLink2,
           youtubeLink3,
+          albumId,
         },
         create: {
           youtubeLink1,
           youtubeLink2,
           youtubeLink3,
+          albumId,
           userId: userId,
         },
       });
@@ -32,7 +34,20 @@ export class YoutubeLinksService {
 
   async getYoutubeLinks() {
     try {
-      return await this.prisma.youtubeLinks.findFirst();
+      const youtubeLinks = await this.prisma.youtubeLinks.findFirst();
+      const albumsData = await this.prisma.albumSesion.findMany({
+        select: {
+          participants: true,
+          id: true,
+        },
+      });
+      const album = await this.prisma.albumSesion.findUnique({
+        where: { id: youtubeLinks.albumId },
+        include: {
+          images: true,
+        },
+      });
+      return { youtubeLinks, albumsData, album };
     } catch (error) {
       throw error;
     }

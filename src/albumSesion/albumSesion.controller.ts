@@ -1,17 +1,14 @@
 import {
   Body,
   Controller,
-  Param,
   Post,
-  Get,
   Request,
   UseGuards,
-  ValidationPipe,
   UseInterceptors,
-  UploadedFile,
+  UploadedFiles,
+  Get,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express/multer';
-
+import { FilesInterceptor } from '@nestjs/platform-express/multer';
 import { JwtAuthGuard } from '../helpers/guards/RoleGuard';
 import { Roles } from '../helpers/guards/role';
 import { Role } from '../helpers/guards/role.enum';
@@ -24,12 +21,24 @@ export class AlbumSesionController {
   @Post()
   @Roles(Role.Admin)
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('images'))
+  @UseInterceptors(FilesInterceptor('image'))
   async createAlbumSesion(
     @Body() data: any,
     @Request() req: Request,
-    @UploadedFile() imageFile: Express.Multer.File,
+    @UploadedFiles() imageFile: Array<Express.Multer.File>,
   ) {
     return this.albumSesionService.createAlbumSesion(data, req, imageFile);
+  }
+
+  @Get()
+  async getAlbumSesions() {
+    return this.albumSesionService.getAlbumSesions();
+  }
+
+  @Post('delete')
+  @Roles(Role.Admin)
+  @UseGuards(JwtAuthGuard)
+  async deleteAlbumSesion(@Body() data: any, @Request() req: Request) {
+    return this.albumSesionService.deleteAlbumSesion(data, req);
   }
 }
