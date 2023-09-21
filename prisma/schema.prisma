@@ -72,7 +72,8 @@ model AlbumSesion {
   participants  String
   albumName     String
   albumPassword String
-  videos        String[]
+  trailerVideo  String?
+  mainVideo     String?
   images        Images[]
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int

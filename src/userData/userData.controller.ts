@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Param,
   Post,
   Get,
   Request,
@@ -15,8 +14,9 @@ import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { JwtAuthGuard } from '../../src/helpers/guards/RoleGuard';
 import { Roles } from '../../src/helpers/guards/role';
 import { Role } from '../../src/helpers/guards/role.enum';
-import { ResponseRo } from 'src/helpers/types';
+import { ResponseRo, UserDataRo } from '../../src/helpers/types';
 import { UserDataService } from './userData.service';
+import { CreateUserDataDto } from './dto/userData.dto';
 
 @Controller('user-data/')
 export class UserDataController {
@@ -27,15 +27,15 @@ export class UserDataController {
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('image'))
   async createUserData(
-    @Body() data: any,
+    @Body(new ValidationPipe()) data: CreateUserDataDto,
     @Request() req: Request,
-    @UploadedFile() imageFile: Express.Multer.File,
-  ) {
+    @UploadedFile(new ValidationPipe()) imageFile: Express.Multer.File,
+  ): Promise<ResponseRo> {
     return this.userDataService.createUserData(data, req, imageFile);
   }
 
   @Get()
-  async getUserData() {
+  async getUserData(): Promise<UserDataRo> {
     return this.userDataService.getUserData();
   }
 }

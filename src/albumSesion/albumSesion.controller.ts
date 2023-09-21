@@ -7,12 +7,25 @@ import {
   UseInterceptors,
   UploadedFiles,
   Get,
+  Param,
+  ParseIntPipe,
+  ValidationPipe,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express/multer';
 import { JwtAuthGuard } from '../helpers/guards/RoleGuard';
 import { Roles } from '../helpers/guards/role';
 import { Role } from '../helpers/guards/role.enum';
 import { AlbumSesionService } from './albumSesion.service';
+import {
+  CreateAlbumSesionDto,
+  DeleteAlbumSesionDto,
+  GetPrivateAlbumDto,
+} from './dto/albumSesion.dto';
+import {
+  AlbumSesionRo,
+  PrivateAlbumSesionRo,
+  ResponseRo,
+} from '../../src/helpers/types';
 
 @Controller('album/')
 export class AlbumSesionController {
@@ -23,22 +36,42 @@ export class AlbumSesionController {
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FilesInterceptor('image'))
   async createAlbumSesion(
-    @Body() data: any,
+    @Body(new ValidationPipe()) data: CreateAlbumSesionDto,
     @Request() req: Request,
     @UploadedFiles() imageFile: Array<Express.Multer.File>,
-  ) {
+  ): Promise<ResponseRo> {
     return this.albumSesionService.createAlbumSesion(data, req, imageFile);
   }
 
   @Get()
-  async getAlbumSesions() {
+  async getAlbumSesions(): Promise<AlbumSesionRo[]> {
     return this.albumSesionService.getAlbumSesions();
   }
 
   @Post('delete')
   @Roles(Role.Admin)
   @UseGuards(JwtAuthGuard)
-  async deleteAlbumSesion(@Body() data: any, @Request() req: Request) {
+  async deleteAlbumSesion(
+    @Body(new ValidationPipe()) data: DeleteAlbumSesionDto,
+    @Request() req: Request,
+  ): Promise<ResponseRo> {
     return this.albumSesionService.deleteAlbumSesion(data, req);
+  }
+
+  @Post('private')
+  async getPrivateAlbum(
+    @Body(new ValidationPipe()) data: GetPrivateAlbumDto,
+  ): Promise<PrivateAlbumSesionRo> {
+    return this.albumSesionService.getPrivateAlbum(data);
+  }
+
+  @Get(':id')
+  @Roles(Role.Admin)
+  @UseGuards(JwtAuthGuard)
+  async getAlbumByIdByAdmin(
+    @Param('id', ParseIntPipe) id: number,
+    @Request() req: Request,
+  ): Promise<PrivateAlbumSesionRo> {
+    return this.albumSesionService.getAlbumByIdByAdmin(req, id);
   }
 }

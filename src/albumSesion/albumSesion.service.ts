@@ -5,23 +5,33 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { getUserIdAndTokenFromRequest } from '../helpers/utils/getUserIdAndTokenFromRequest';
-import { createWriteStream, unlink, ensureDir, remove } from 'fs-extra';
+import { createWriteStream, ensureDir, remove } from 'fs-extra';
 import { join } from 'path';
 import * as bcrypt from 'bcrypt';
+import {
+  CreateAlbumSesionDto,
+  DeleteAlbumSesionDto,
+  GetPrivateAlbumDto,
+} from './dto/albumSesion.dto';
+import {
+  AlbumSesionRo,
+  PrivateAlbumSesionRo,
+  ResponseRo,
+} from '../../src/helpers/types';
 
 @Injectable()
 export class AlbumSesionService {
   constructor(private prisma: PrismaService) {}
 
   async createAlbumSesion(
-    data: any,
+    data: CreateAlbumSesionDto,
     req: Request,
     imageFile: Array<Express.Multer.File>,
-  ) {
+  ): Promise<{ statusCode: number }> {
     try {
       const { userId } = await getUserIdAndTokenFromRequest(req);
 
-      const participantFolderName = await data.participants
+      const participantFolderName = data.participants
         .replace(/\s/g, '')
         .toLowerCase();
 
@@ -37,6 +47,8 @@ export class AlbumSesionService {
           albumName: data.albumName,
           participants: data.participants,
           albumPassword: data.albumPassword,
+          trailerVideo: data.trailerVideo,
+          mainVideo: data.mainVideo,
           userId,
         },
       });
@@ -66,21 +78,32 @@ export class AlbumSesionService {
     }
   }
 
-  async getAlbumSesions() {
+  async getAlbumSesions(): Promise<AlbumSesionRo[]> {
     try {
-      return await this.prisma.albumSesion.findMany({
-        include: {
+      const albumSesion = await this.prisma.albumSesion.findMany({
+        select: {
+          id: true,
+          albumName: true,
+          participants: true,
+          mainVideo: true,
+          trailerVideo: true,
+          userId: true,
           images: {
             take: 1,
           },
         },
       });
+
+      return albumSesion;
     } catch (error) {
       throw error;
     }
   }
 
-  async deleteAlbumSesion(data: any, req: Request) {
+  async deleteAlbumSesion(
+    data: DeleteAlbumSesionDto,
+    req: Request,
+  ): Promise<ResponseRo> {
     try {
       const { albumId, password } = data;
       const { userId } = await getUserIdAndTokenFromRequest(req);
@@ -109,7 +132,6 @@ export class AlbumSesionService {
         throw new NotFoundException('Album session not found');
       }
 
-      // Get the folder path associated with the album session
       const participantFolderName = albumToDelete.participants
         .replace(/\s/g, '')
         .toLowerCase();
@@ -118,15 +140,65 @@ export class AlbumSesionService {
         participantFolderName,
       );
 
-      // Delete the album session and its associated images from the database
       await this.prisma.albumSesion.delete({
         where: { id: albumId },
       });
 
-      // Use fs-extra to remove the folder and its contents
       await remove(folderPath);
 
       return { statusCode: 204 };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getPrivateAlbum(
+    data: GetPrivateAlbumDto,
+  ): Promise<PrivateAlbumSesionRo> {
+    try {
+      const { id, password } = data;
+
+      const album = await this.prisma.albumSesion.findUnique({
+        where: { id: Number(id) },
+        include: {
+          images: true,
+        },
+      });
+
+      if (!album) {
+        throw new NotFoundException('Album not found');
+      }
+
+      if (password !== album.albumPassword) {
+        throw new BadRequestException('Wrong password');
+      }
+
+      return { statusCode: 200, album };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getAlbumByIdByAdmin(
+    req: Request,
+    id: number,
+  ): Promise<PrivateAlbumSesionRo> {
+    try {
+      const { userId } = await getUserIdAndTokenFromRequest(req);
+
+      if (!userId) {
+        throw new NotFoundException(`User does not exist`);
+      }
+
+      const album = await this.prisma.albumSesion.findUnique({
+        where: {
+          id,
+        },
+        include: {
+          images: true,
+        },
+      });
+      return { statusCode: 200, album };
     } catch (error) {
       throw error;
     }

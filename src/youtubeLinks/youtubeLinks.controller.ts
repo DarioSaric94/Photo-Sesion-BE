@@ -16,6 +16,8 @@ import { JwtAuthGuard } from '../helpers/guards/RoleGuard';
 import { Roles } from '../helpers/guards/role';
 import { Role } from '../helpers/guards/role.enum';
 import { YoutubeLinksService } from './youtubeLinks.service';
+import { CreateYoutubeLinkDto } from './dto/youtubeLinks.dto';
+import { ResponseRo, YoutubeLinksRo } from 'src/helpers/types';
 
 @Controller('youtube-links/')
 export class YoutubeLinksController {
@@ -24,12 +26,15 @@ export class YoutubeLinksController {
   @Post()
   @Roles(Role.Admin)
   @UseGuards(JwtAuthGuard)
-  async createYoutubeLinks(@Body() data: any, @Request() req: Request) {
+  async createYoutubeLinks(
+    @Body(new ValidationPipe()) data: CreateYoutubeLinkDto,
+    @Request() req: Request,
+  ): Promise<ResponseRo> {
     return this.youtubeLinksService.createYoutubeLinks(data, req);
   }
 
   @Get()
-  async getYoutubeLinks() {
+  async getYoutubeLinks(): Promise<YoutubeLinksRo> {
     return this.youtubeLinksService.getYoutubeLinks();
   }
 }

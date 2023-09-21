@@ -14,10 +14,9 @@ import {
   RegisterUserDto,
   ResetPasswordDto,
 } from './dto/create-user.dto,';
-import { UserDataRo } from './interface/user.interface';
 import { TokenExpiredError } from 'jsonwebtoken';
 import { generateToken } from '../helpers/utils/generateToken';
-import { ResponseRo } from 'src/helpers/types';
+import { ResponseRo, UserRo } from '../../src/helpers/types';
 
 @Injectable()
 export class UserService {
@@ -25,7 +24,7 @@ export class UserService {
 
   constructor(private prisma: PrismaService) {}
 
-  async createUser(data: RegisterUserDto): Promise<UserDataRo> {
+  async createUser(data: RegisterUserDto): Promise<UserRo> {
     try {
       const { email, password } = data;
       const existingUser = await this.prisma.user.findFirst({
@@ -72,7 +71,7 @@ export class UserService {
     }
   }
 
-  async loginUser(data: LoginUserDto): Promise<UserDataRo> {
+  async loginUser(data: LoginUserDto): Promise<UserRo> {
     try {
       const { email, password } = data;
 
@@ -111,7 +110,7 @@ export class UserService {
     }
   }
 
-  async getUserByToken(req: any): Promise<UserDataRo> {
+  async getUserByToken(req: any): Promise<UserRo> {
     try {
       const token = req.headers.authorization?.replace('Bearer ', '');
       const decoded = jwt.verify(
@@ -186,7 +185,7 @@ export class UserService {
   async changePassword(
     token: string,
     body: ChangePasswordDto,
-  ): Promise<UserDataRo> {
+  ): Promise<UserRo> {
     try {
       const decoded = jwt.verify(
         token,

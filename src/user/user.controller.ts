@@ -16,10 +16,9 @@ import {
   ResetPasswordDto,
 } from './dto/create-user.dto,';
 import { JwtAuthGuard } from '../../src/helpers/guards/RoleGuard';
-import { UserDataRo } from './interface/user.interface';
 import { Roles } from '../../src/helpers/guards/role';
 import { Role } from '../../src/helpers/guards/role.enum';
-import { ResponseRo } from 'src/helpers/types';
+import { ResponseRo, UserRo } from '../../src/helpers/types';
 
 @Controller('auth/')
 export class UserController {
@@ -28,19 +27,19 @@ export class UserController {
   @Post('register')
   async createUser(
     @Body(new ValidationPipe()) user: RegisterUserDto,
-  ): Promise<UserDataRo> {
+  ): Promise<UserRo> {
     return this.userService.createUser(user);
   }
 
   @Post('login')
-  async loginUser(@Body() user: LoginUserDto): Promise<UserDataRo> {
+  async loginUser(@Body() user: LoginUserDto): Promise<UserRo> {
     return this.userService.loginUser(user);
   }
 
   @Get('user')
   @Roles(Role.Admin, Role.User)
   @UseGuards(JwtAuthGuard)
-  async getUserByToken(@Request() req: Request): Promise<UserDataRo> {
+  async getUserByToken(@Request() req: Request): Promise<UserRo> {
     return this.userService.getUserByToken(req);
   }
 
@@ -57,7 +56,7 @@ export class UserController {
   async changePassword(
     @Param('token') token: string,
     @Body(new ValidationPipe()) body: ChangePasswordDto,
-  ): Promise<UserDataRo> {
+  ): Promise<UserRo> {
     return this.userService.changePassword(token, body);
   }
 }

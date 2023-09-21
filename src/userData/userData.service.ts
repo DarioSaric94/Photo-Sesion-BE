@@ -1,31 +1,20 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import * as bcrypt from 'bcrypt';
-import * as nodemailer from 'nodemailer';
 import { join } from 'path';
 import { createWriteStream, unlink } from 'fs-extra';
-
-import { TokenExpiredError } from 'jsonwebtoken';
-import { generateToken } from '../helpers/utils/generateToken';
-import { ResponseRo } from 'src/helpers/types';
+import { ResponseRo, UserDataRo } from 'src/helpers/types';
 import { getUserIdAndTokenFromRequest } from '../../src/helpers/utils/getUserIdAndTokenFromRequest';
+import { CreateUserDataDto } from './dto/userData.dto';
 
 @Injectable()
 export class UserDataService {
-  private transporter: nodemailer.Transporter;
-
   constructor(private prisma: PrismaService) {}
 
   async createUserData(
-    data: any,
+    data: CreateUserDataDto,
     req: Request,
     imageFile: Express.Multer.File,
-  ) {
+  ): Promise<ResponseRo> {
     try {
       const { userId } = await getUserIdAndTokenFromRequest(req);
 
@@ -61,7 +50,7 @@ export class UserDataService {
       }
 
       if (existingUserData) {
-        const userData = await this.prisma.userData.update({
+        await this.prisma.userData.update({
           where: { userId },
           data: {
             name: data.name,
@@ -76,9 +65,9 @@ export class UserDataService {
             image: imageFile && imageUrl,
           },
         });
-        return { statusCode: 200, userData };
+        return { statusCode: 200 };
       } else {
-        const userData = await this.prisma.userData.create({
+        await this.prisma.userData.create({
           data: {
             name: data.name,
             lastName: data.lastName,
@@ -94,22 +83,24 @@ export class UserDataService {
           },
         });
 
-        return { statusCode: 200, userData };
+        return { statusCode: 200 };
       }
     } catch (error) {
       throw error;
     }
   }
 
-  async getUserData() {
+  async getUserData(): Promise<UserDataRo> {
     try {
-      const userData = await this.prisma.userData.findFirst({
+      const data = await this.prisma.userData.findFirst({
         include: { user: { select: { email: true } } },
       });
-      if (!userData) {
+      if (!data) {
         return null;
       }
-      return { ...userData, email: userData.user.email };
+
+      const { user, ...userData } = data;
+      return { ...userData, email: user.email };
     } catch (error) {
       throw error;
     }

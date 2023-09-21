@@ -1,12 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { getUserIdAndTokenFromRequest } from '../helpers/utils/getUserIdAndTokenFromRequest';
+import { CreateYoutubeLinkDto } from './dto/youtubeLinks.dto';
+import { ResponseRo, YoutubeLinksRo } from 'src/helpers/types';
 
 @Injectable()
 export class YoutubeLinksService {
   constructor(private prisma: PrismaService) {}
 
-  async createYoutubeLinks(data: any, req: Request) {
+  async createYoutubeLinks(
+    data: CreateYoutubeLinkDto,
+    req: Request,
+  ): Promise<ResponseRo> {
     try {
       const { youtubeLink1, youtubeLink2, youtubeLink3, albumId } = data;
       const { userId } = await getUserIdAndTokenFromRequest(req);
@@ -16,13 +21,13 @@ export class YoutubeLinksService {
           youtubeLink1,
           youtubeLink2,
           youtubeLink3,
-          albumId,
+          albumId: albumId,
         },
         create: {
           youtubeLink1,
           youtubeLink2,
           youtubeLink3,
-          albumId,
+          albumId: albumId,
           userId: userId,
         },
       });
@@ -32,7 +37,7 @@ export class YoutubeLinksService {
     }
   }
 
-  async getYoutubeLinks() {
+  async getYoutubeLinks(): Promise<YoutubeLinksRo> {
     try {
       const youtubeLinks = await this.prisma.youtubeLinks.findFirst();
       const albumsData = await this.prisma.albumSesion.findMany({
@@ -44,7 +49,9 @@ export class YoutubeLinksService {
       const album = await this.prisma.albumSesion.findUnique({
         where: { id: youtubeLinks.albumId },
         include: {
-          images: true,
+          images: {
+            take: 60,
+          },
         },
       });
       return { youtubeLinks, albumsData, album };
