@@ -68,15 +68,25 @@ model YoutubeLinks {
 }
 
 model AlbumSesion {
-  id            Int      @id @default(autoincrement())
+  id            Int                 @id @default(autoincrement())
   participants  String
   albumName     String
   albumPassword String
   trailerVideo  String?
   mainVideo     String?
+  albumPath     String
   images        Images[]
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        Int
+  tokens        AlbumSessionToken[]
+}
+
+model AlbumSessionToken {
+  id             Int         @id @default(autoincrement())
+  sessionToken   String?
+  albumSessionId Int
+  createdAt      DateTime    @default(dbgenerated("(timezone('utc'::text, now()) AT TIME ZONE '0')::timestamp(0)"))
+  albumSesion    AlbumSesion @relation(fields: [albumSessionId], references: [id])
 }
 
 model Images {

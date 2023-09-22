@@ -1,9 +1,9 @@
+import { PrismaService } from '../../prisma/prisma.service';
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
 import { getUserIdAndTokenFromRequest } from '../helpers/utils/getUserIdAndTokenFromRequest';
 import { createWriteStream, ensureDir, remove } from 'fs-extra';
 import { join } from 'path';
@@ -49,6 +49,7 @@ export class AlbumSesionService {
           albumPassword: data.albumPassword,
           trailerVideo: data.trailerVideo,
           mainVideo: data.mainVideo,
+          albumPath: `${participantFolderName}`,
           userId,
         },
       });
@@ -88,11 +89,16 @@ export class AlbumSesionService {
           mainVideo: true,
           trailerVideo: true,
           userId: true,
+          albumPath: true,
           images: {
             take: 1,
           },
         },
       });
+
+      if (!albumSesion) {
+        return [];
+      }
 
       return albumSesion;
     } catch (error) {
@@ -103,7 +109,7 @@ export class AlbumSesionService {
   async deleteAlbumSesion(
     data: DeleteAlbumSesionDto,
     req: Request,
-  ): Promise<ResponseRo> {
+  ): Promise<{ statusCode: number }> {
     try {
       const { albumId, password } = data;
       const { userId } = await getUserIdAndTokenFromRequest(req);
@@ -114,6 +120,10 @@ export class AlbumSesionService {
 
       if (!user) {
         throw new NotFoundException(`User does not exist`);
+      }
+
+      if (!albumId) {
+        throw new NotFoundException('Album session not found');
       }
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -127,10 +137,6 @@ export class AlbumSesionService {
           images: true,
         },
       });
-
-      if (!albumToDelete) {
-        throw new NotFoundException('Album session not found');
-      }
 
       const participantFolderName = albumToDelete.participants
         .replace(/\s/g, '')

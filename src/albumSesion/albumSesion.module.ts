@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { Module } from '@nestjs/common';
 import { AlbumSesionService } from './albumSesion.service';
 import { AlbumSesionController } from './albumSesion.controller';
 

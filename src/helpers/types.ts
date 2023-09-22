@@ -17,10 +17,11 @@ export interface AlbumSesionRo {
   id: number;
   albumName: string;
   participants: string;
-  mainVideo: string;
-  trailerVideo: string;
+  mainVideo?: string;
+  trailerVideo?: string;
+  albumPassword?: string;
   userId: number;
-  images: Images[];
+  images?: Images[];
 }
 
 export interface PrivateAlbumSesionRo extends ResponseRo {
@@ -67,4 +68,9 @@ interface YoutubeLinks {
   youtubeLink1?: string;
   youtubeLink2?: string;
   youtubeLink3?: string;
+}
+
+export interface GetImageFileRo extends ResponseRo {
+  url: string;
+  sessionToken: string;
 }

@@ -39,7 +39,7 @@ export class AlbumSesionController {
     @Body(new ValidationPipe()) data: CreateAlbumSesionDto,
     @Request() req: Request,
     @UploadedFiles() imageFile: Array<Express.Multer.File>,
-  ): Promise<ResponseRo> {
+  ): Promise<{ statusCode: number }> {
     return this.albumSesionService.createAlbumSesion(data, req, imageFile);
   }
 
@@ -54,7 +54,7 @@ export class AlbumSesionController {
   async deleteAlbumSesion(
     @Body(new ValidationPipe()) data: DeleteAlbumSesionDto,
     @Request() req: Request,
-  ): Promise<ResponseRo> {
+  ): Promise<{ statusCode: number }> {
     return this.albumSesionService.deleteAlbumSesion(data, req);
   }
 
@@ -69,9 +69,9 @@ export class AlbumSesionController {
   @Roles(Role.Admin)
   @UseGuards(JwtAuthGuard)
   async getAlbumByIdByAdmin(
-    @Param('id', ParseIntPipe) id: number,
     @Request() req: Request,
+    @Param('id', ParseIntPipe) albumId: number,
   ): Promise<PrivateAlbumSesionRo> {
-    return this.albumSesionService.getAlbumByIdByAdmin(req, id);
+    return this.albumSesionService.getAlbumByIdByAdmin(req, albumId);
   }
 }
