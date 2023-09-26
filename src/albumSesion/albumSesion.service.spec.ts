@@ -9,7 +9,6 @@ import {
 import { AlbumSesionRo, PrivateAlbumSesionRo } from '../../src/helpers/types';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import { getUserIdAndTokenFromRequest } from '../../src/helpers/utils/getUserIdAndTokenFromRequest';
 
 jest.mock('fs-extra', () => ({
   pathExists: jest.fn(),
@@ -280,45 +279,33 @@ describe('AlbumSesionService', () => {
           images: [],
         },
       };
-      const req = {} as Request;
-      const data = {
-        userId: 1,
-        id: 1,
-      };
+      const req = {
+        headers: {
+          authorization:
+            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTY5NTMzOTYxMX0.8gpOzEHGzbspVQ87SMgLK_s_1VHy37K02ba3N1RfEX4',
+        },
+      } as unknown as Request;
+      const albumId = 1;
 
-      const result = await albumSesionService.getAlbumByIdByAdmin(req, data.id);
+      prismaServiceMock.albumSesion.findUnique.mockResolvedValue(
+        expectedResult.album,
+      );
 
-      prismaServiceMock.albumSesion.findUnique.mockResolvedValue(data.id);
+      const result = await albumSesionService.getAlbumByIdByAdmin(req, albumId);
 
       expect(result).toEqual(expectedResult);
     });
 
-    // it('should throw NotFoundException if album isnt found', async () => {
-    //   const deleteAlbumSesion: GetPrivateAlbumDto = {
-    //     id: '1',
-    //     password: 'password',
-    //   };
+    it('should throw NotFoundException if user isnt found', async () => {
+      const req = {
+        headers: {
+          authorization: 'Bearer asd',
+        },
+      } as unknown as Request;
 
-    //   prismaServiceMock.albumSesion.findUnique.mockResolvedValue(null);
-
-    //   await expect(
-    //     albumSesionService.getPrivateAlbum(deleteAlbumSesion),
-    //   ).rejects.toThrowError(new NotFoundException('Album not found'));
-    // });
-
-    // it('should throw NotFoundException if password is wrong', async () => {
-    //   const deleteAlbumSesion: GetPrivateAlbumDto = {
-    //     id: '1',
-    //     password: 'password',
-    //   };
-
-    //   prismaServiceMock.albumSesion.findUnique.mockResolvedValue(
-    //     deleteAlbumSesion,
-    //   );
-
-    //   await expect(
-    //     albumSesionService.getPrivateAlbum(deleteAlbumSesion),
-    //   ).rejects.toThrowError(new BadRequestException('Wrong password'));
-    // });
+      await expect(
+        albumSesionService.getAlbumByIdByAdmin(req, 1),
+      ).rejects.toThrowError(new NotFoundException('User does not exist'));
+    });
   });
 });

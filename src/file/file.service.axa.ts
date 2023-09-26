@@ -133,26 +133,22 @@ describe('FileService', () => {
 
   describe('unlockedImageFile', () => {
     it('should unlock an image file', async () => {
-      const albumPath = 'somePath';
+      const albumPath = 'asdasd&sadsad';
       const sessionToken = 'mocked-session-token';
-      const albumId = 1;
+      const albumId = 25;
 
       const albumHasValidToken = {
-        id: 1,
+        id: 25,
         sessionToken: 'mocked-session-token',
       };
+
+      prismaServiceMock.albumSessionToken.create.mockResolvedValue(
+        albumHasValidToken,
+      );
 
       prismaServiceMock.albumSessionToken.findFirst.mockResolvedValue(
         albumHasValidToken,
       );
-
-      archiverMock.pipe.mockReturnThis();
-      archiverMock.file.mockReturnThis();
-      archiverMock.finalize.mockImplementation(() => {
-        responseMock.status(200).send('Archive content');
-      });
-
-      readdirSyncMock.mockReturnValue(['file1.txt']);
 
       await fileService.unlockedImageFile(
         albumPath,
@@ -160,6 +156,12 @@ describe('FileService', () => {
         sessionToken,
         albumId,
       );
+
+      archiverMock.pipe.mockReturnThis();
+      archiverMock.file.mockReturnThis();
+      archiverMock.finalize.mockImplementation(() => {
+        responseMock.status(200).send('Archive content');
+      });
 
       expect(
         prismaServiceMock.albumSessionToken.findFirst,

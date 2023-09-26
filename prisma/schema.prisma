@@ -86,7 +86,7 @@ model AlbumSessionToken {
   sessionToken   String?
   albumSessionId Int
   createdAt      DateTime    @default(dbgenerated("(timezone('utc'::text, now()) AT TIME ZONE '0')::timestamp(0)"))
-  albumSesion    AlbumSesion @relation(fields: [albumSessionId], references: [id])
+  albumSesion    AlbumSesion @relation(fields: [albumSessionId], references: [id], onDelete: Cascade)
 }
 
 model Images {

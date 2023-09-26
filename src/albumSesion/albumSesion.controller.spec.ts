@@ -9,7 +9,6 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { AlbumSesionRo, PrivateAlbumSesionRo } from 'src/helpers/types';
 import { JwtAuthGuard } from '../../src/helpers/guards/RoleGuard';
-import supertest from 'supertest';
 import { NotFoundException } from '@nestjs/common';
 
 describe('AlbumSesionController', () => {

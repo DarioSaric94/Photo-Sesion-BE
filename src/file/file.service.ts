@@ -70,6 +70,9 @@ export class FileService {
       }
 
       const folderPath = join(process.cwd(), 'images', albumPath);
+      console.log(folderPath, 'folderpath');
+      const files = await fs.promises.readdir(folderPath);
+      console.log(files, 'files');
 
       const archive = archiver('zip', {
         zlib: { level: 0 },
@@ -79,8 +82,6 @@ export class FileService {
         'Content-Type': 'application/zip',
         'Content-Disposition': `attachment; filename="${albumPath}.zip"`,
       });
-
-      const files = await fs.promises.readdir(folderPath);
 
       if (!files || files.length === 0) {
         throw new NotFoundException('No files found in the folder');

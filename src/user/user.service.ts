@@ -17,6 +17,7 @@ import {
 import { TokenExpiredError } from 'jsonwebtoken';
 import { generateToken } from '../helpers/utils/generateToken';
 import { ResponseRo, UserRo } from '../../src/helpers/types';
+import { getUserIdAndTokenFromRequest } from '../../src/helpers/utils/getUserIdAndTokenFromRequest';
 
 @Injectable()
 export class UserService {
@@ -110,18 +111,17 @@ export class UserService {
     }
   }
 
-  async getUserByToken(req: any): Promise<UserRo> {
+  async getUserByToken(req: Request): Promise<UserRo> {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '');
-      const decoded = jwt.verify(
-        token,
-        process.env.SECRET_KEY,
-      ) as jwt.JwtPayload;
-      const userId = decoded?.userId;
+      const { userId, token } = await getUserIdAndTokenFromRequest(req);
 
       const user = await this.prisma.user.findUnique({
         where: { id: userId },
       });
+
+      if (!user) {
+        throw new NotFoundException(`User with ${userId} does not exists`);
+      }
 
       const { password: _, ...userData } = user;
 
@@ -140,7 +140,7 @@ export class UserService {
       });
 
       if (!user) {
-        throw new NotFoundException('User does not exists');
+        throw new NotFoundException(`User with ${body.email} not exists`);
       }
       const token = jwt.sign({ userId: user.id }, process.env.SECRET_KEY, {
         expiresIn: '5m',
@@ -153,21 +153,21 @@ export class UserService {
         },
       });
 
-      nodemailer.createTransport({
+      const transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 587,
         secure: false,
         auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
+          user: process.env.GMAIL_USER,
+          pass: process.env.GMAIL_PASS,
         },
       });
 
       const resetPasswordLink = `${process.env.APP_URL}auth/change-password?token=${tokenData.resetToken}`;
       const emailContent = `<div>Click the following link to reset your password: ${resetPasswordLink}<div>`;
 
-      await this.transporter.sendMail({
-        from: process.env.EMAIL_USER,
+      await transporter.sendMail({
+        from: process.env.GMAIL_USER,
         to: body.email,
         subject: 'Password Reset',
         html: emailContent,
@@ -175,7 +175,7 @@ export class UserService {
 
       return {
         statusCode: 200,
-        message: `Email confirmation has been sent to "${body.email}"  `,
+        message: `Email confirmation has been sent to ${body.email}`,
       };
     } catch (error) {
       throw error;

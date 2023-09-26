@@ -21,11 +21,7 @@ import {
   DeleteAlbumSesionDto,
   GetPrivateAlbumDto,
 } from './dto/albumSesion.dto';
-import {
-  AlbumSesionRo,
-  PrivateAlbumSesionRo,
-  ResponseRo,
-} from '../../src/helpers/types';
+import { AlbumSesionRo, PrivateAlbumSesionRo } from '../../src/helpers/types';
 
 @Controller('album/')
 export class AlbumSesionController {
