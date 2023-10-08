@@ -10,6 +10,7 @@ import {
   Param,
   ParseIntPipe,
   ValidationPipe,
+  HttpStatus,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express/multer';
 import { JwtAuthGuard } from '../helpers/guards/RoleGuard';
@@ -35,7 +36,7 @@ export class AlbumSesionController {
     @Body(new ValidationPipe()) data: CreateAlbumSesionDto,
     @Request() req: Request,
     @UploadedFiles() imageFile: Array<Express.Multer.File>,
-  ): Promise<{ statusCode: number }> {
+  ): Promise<HttpStatus> {
     return this.albumSesionService.createAlbumSesion(data, req, imageFile);
   }
 
@@ -50,7 +51,7 @@ export class AlbumSesionController {
   async deleteAlbumSesion(
     @Body(new ValidationPipe()) data: DeleteAlbumSesionDto,
     @Request() req: Request,
-  ): Promise<{ statusCode: number }> {
+  ): Promise<HttpStatus> {
     return this.albumSesionService.deleteAlbumSesion(data, req);
   }
 

@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  HttpStatus,
 } from '@nestjs/common';
 import { Response } from 'express';
 import * as fs from 'fs-extra';
@@ -39,7 +40,7 @@ export class FileService {
         },
       });
 
-      return { statusCode: 200, url: data.albumPath, sessionToken };
+      return { status: HttpStatus.OK, url: data.albumPath, sessionToken };
     } catch (error) {
       throw error;
     }

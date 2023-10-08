@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { join } from 'path';
 import { createWriteStream, unlink } from 'fs-extra';
@@ -65,7 +65,10 @@ export class UserDataService {
             image: imageFile && imageUrl,
           },
         });
-        return { message: 'Podatci su uspješno sačuvani' };
+        return {
+          message: 'Podatci su uspješno sačuvani',
+          status: HttpStatus.CREATED,
+        };
       } else {
         await this.prisma.userData.create({
           data: {
@@ -83,7 +86,10 @@ export class UserDataService {
           },
         });
 
-        return { message: 'Podatci su uspješno sačuvani' };
+        return {
+          message: 'Podatci su uspješno sačuvani',
+          status: HttpStatus.CREATED,
+        };
       }
     } catch (error) {
       throw error;
@@ -100,7 +106,7 @@ export class UserDataService {
       }
 
       const { user, ...userData } = data;
-      return { ...userData, email: user.email };
+      return { ...userData, email: user.email, status: HttpStatus.OK };
     } catch (error) {
       throw error;
     }

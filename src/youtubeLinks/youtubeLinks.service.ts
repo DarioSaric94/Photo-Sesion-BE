@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { getUserIdAndTokenFromRequest } from '../helpers/utils/getUserIdAndTokenFromRequest';
 import { CreateYoutubeLinkDto } from './dto/youtubeLinks.dto';
@@ -31,7 +31,7 @@ export class YoutubeLinksService {
           userId: userId,
         },
       });
-      return { statusCode: 200 };
+      return { status: HttpStatus.OK };
     } catch (error) {
       throw error;
     }
@@ -54,7 +54,7 @@ export class YoutubeLinksService {
           },
         },
       });
-      return { youtubeLinks, albumsData, album };
+      return { youtubeLinks, albumsData, album, status: HttpStatus.OK };
     } catch (error) {
       throw error;
     }

@@ -1,5 +1,12 @@
+import { HttpStatus } from '@nestjs/common';
+
 export interface ResponseRo {
   message?: string;
+  status?: number;
+}
+
+export interface Status {
+  status: HttpStatus;
 }
 
 export interface UserRo extends ResponseRo {
@@ -23,7 +30,7 @@ export interface AlbumSesionRo {
   images?: Images[];
 }
 
-export interface PrivateAlbumSesionRo extends ResponseRo {
+export interface PrivateAlbumSesionRo extends Status {
   album: AlbumSesionRo;
 }
 
@@ -33,7 +40,7 @@ export interface Images {
   image: string;
 }
 
-export interface UserDataRo {
+export interface UserDataRo extends ResponseRo {
   id?: number;
   name?: string;
   lastName?: string;
@@ -49,7 +56,7 @@ export interface UserDataRo {
   email?: string;
 }
 
-export interface YoutubeLinksRo {
+export interface YoutubeLinksRo extends ResponseRo {
   album: AlbumSesionRo;
   albumsData?: AlbumsData[];
   youtubeLinks?: YoutubeLinks;
@@ -69,7 +76,7 @@ interface YoutubeLinks {
   youtubeLink3?: string;
 }
 
-export interface GetImageFileRo extends ResponseRo {
+export interface GetImageFileRo extends Status {
   url: string;
   sessionToken: string;
 }

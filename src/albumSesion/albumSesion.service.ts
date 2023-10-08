@@ -1,6 +1,7 @@
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   BadRequestException,
+  HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -23,7 +24,7 @@ export class AlbumSesionService {
     data: CreateAlbumSesionDto,
     req: Request,
     imageFile: Array<Express.Multer.File>,
-  ): Promise<{ statusCode: number }> {
+  ): Promise<HttpStatus> {
     try {
       const { userId } = await getUserIdAndTokenFromRequest(req);
 
@@ -69,7 +70,7 @@ export class AlbumSesionService {
           },
         });
       }
-      return { statusCode: 201 };
+      return HttpStatus.CREATED;
     } catch (error) {
       throw error;
     }
@@ -105,7 +106,7 @@ export class AlbumSesionService {
   async deleteAlbumSesion(
     data: DeleteAlbumSesionDto,
     req: Request,
-  ): Promise<{ statusCode: number }> {
+  ): Promise<HttpStatus> {
     try {
       const { albumId, password } = data;
       const { userId } = await getUserIdAndTokenFromRequest(req);
@@ -148,7 +149,7 @@ export class AlbumSesionService {
 
       await remove(folderPath);
 
-      return { statusCode: 204 };
+      return HttpStatus.NO_CONTENT;
     } catch (error) {
       throw error;
     }
@@ -175,7 +176,7 @@ export class AlbumSesionService {
         throw new BadRequestException('Wrong password');
       }
 
-      return { statusCode: 200, album };
+      return { status: HttpStatus.OK, album };
     } catch (error) {
       throw error;
     }
@@ -200,7 +201,7 @@ export class AlbumSesionService {
           images: true,
         },
       });
-      return { statusCode: 200, album };
+      return { status: HttpStatus.OK, album };
     } catch (error) {
       throw error;
     }

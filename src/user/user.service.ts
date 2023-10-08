@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  HttpStatus,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -61,6 +62,7 @@ export class UserService {
       const { password: _, ...userData } = user;
 
       return {
+        status: HttpStatus.CREATED,
         userData: { ...userData, token },
         message: 'Account created successfuly',
       };
@@ -99,6 +101,7 @@ export class UserService {
       const { password: _, ...userData } = user;
 
       return {
+        status: HttpStatus.OK,
         userData: { ...userData, token },
         message: 'Loged in successfuly',
       };
@@ -122,6 +125,7 @@ export class UserService {
       const { password: _, ...userData } = user;
 
       return {
+        status: HttpStatus.OK,
         userData: { ...userData, token },
       };
     } catch (error) {
@@ -170,6 +174,7 @@ export class UserService {
       });
 
       return {
+        status: HttpStatus.OK,
         message: `Email confirmation has been sent to ${body.email}`,
       };
     } catch (error) {
@@ -213,6 +218,7 @@ export class UserService {
       const { password, ...userData } = updatedUser;
 
       return {
+        status: HttpStatus.OK,
         userData: { ...userData, token: newToken },
         message: 'Password changed successfuly',
       };
