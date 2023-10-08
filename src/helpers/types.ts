@@ -1,6 +1,5 @@
 export interface ResponseRo {
   message?: string;
-  statusCode?: number;
 }
 
 export interface UserRo extends ResponseRo {

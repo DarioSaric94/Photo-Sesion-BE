@@ -65,7 +65,7 @@ export class UserDataService {
             image: imageFile && imageUrl,
           },
         });
-        return { statusCode: 200 };
+        return { message: 'Podatci su uspješno sačuvani' };
       } else {
         await this.prisma.userData.create({
           data: {
@@ -83,7 +83,7 @@ export class UserDataService {
           },
         });
 
-        return { statusCode: 200 };
+        return { message: 'Podatci su uspješno sačuvani' };
       }
     } catch (error) {
       throw error;

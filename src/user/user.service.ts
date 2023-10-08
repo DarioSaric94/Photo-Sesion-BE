@@ -21,8 +21,6 @@ import { getUserIdAndTokenFromRequest } from '../../src/helpers/utils/getUserIdA
 
 @Injectable()
 export class UserService {
-  private transporter: nodemailer.Transporter;
-
   constructor(private prisma: PrismaService) {}
 
   async createUser(data: RegisterUserDto): Promise<UserRo> {
@@ -63,7 +61,6 @@ export class UserService {
       const { password: _, ...userData } = user;
 
       return {
-        statusCode: 201,
         userData: { ...userData, token },
         message: 'Account created successfuly',
       };
@@ -102,7 +99,6 @@ export class UserService {
       const { password: _, ...userData } = user;
 
       return {
-        statusCode: 200,
         userData: { ...userData, token },
         message: 'Loged in successfuly',
       };
@@ -174,7 +170,6 @@ export class UserService {
       });
 
       return {
-        statusCode: 200,
         message: `Email confirmation has been sent to ${body.email}`,
       };
     } catch (error) {
@@ -218,7 +213,6 @@ export class UserService {
       const { password, ...userData } = updatedUser;
 
       return {
-        statusCode: 201,
         userData: { ...userData, token: newToken },
         message: 'Password changed successfuly',
       };
