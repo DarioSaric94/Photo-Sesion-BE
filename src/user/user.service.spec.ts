@@ -254,9 +254,9 @@ describe('UserService', () => {
 
       const findUniqueUserMock = {
         id: 1,
-        password: 'password',
+        password: '123123123',
         createdAt: undefined,
-        email: 'email',
+        email: 'stalaric94@gmail.com',
         role: 2,
         token: 'token',
       };
@@ -289,7 +289,7 @@ describe('UserService', () => {
 
   describe('changePassword', () => {
     it('should return statusCode 201, userData and message', async () => {
-      const token: string =
+      const token =
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTY5NTMzOTYxMX0.8gpOzEHGzbspVQ87SMgLK_s_1VHy37K02ba3N1RfEX4';
 
       const expectedResult: UserRo = {
@@ -329,7 +329,7 @@ describe('UserService', () => {
     });
 
     it('should return NotFoundException if user is not found', async () => {
-      const token: string =
+      const token =
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTY5NTMzOTYxMX0.8gpOzEHGzbspVQ87SMgLK_s_1VHy37K02ba3N1RfEX4';
       const request: ChangePasswordDto = {
         password: 'password',
@@ -343,7 +343,7 @@ describe('UserService', () => {
     });
 
     it('should throw UnauthorizedException when the token is expired', async () => {
-      const expiredToken: string =
+      const expiredToken =
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTY5NTY4MjA2MiwiZXhwIjoxNjk1NjgyMzYyfQ.l7utvvF8q0uk36dfrPOVrtwlQEISJRAXHSNfHJR6cBs';
       const request: ChangePasswordDto = {
         password: 'password',
