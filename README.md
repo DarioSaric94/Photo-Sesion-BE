@@ -16,12 +16,12 @@ steps:
 4. npx prisma migrate dev
 5. npm run seed
 
-6. Create user using powershell - copy one and paste to terminal, then next one untin you get success
-   6.1 $uri = "http://localhost:3000/auth/register"
-   6.2 $headers = @{ "Content-Type" = "application/json" }
-   6.3 $body = @{
+6. Create user using powershell - copy one and paste to terminal, then next one untin you get success:  
+   6. 1. $uri = "http://localhost:3000/auth/register"
+   6. 2. $headers = @{ "Content-Type" = "application/json" }
+   6. 3. $body = @{
        "email" = "test@email.com"   
        "password" = "123123123"}
-   6.4 $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body ($body | ConvertTo-Json)
-   6.5 Write-Host "Response Status Code: $($response.StatusCode)"
-   6.6 Write-Host "Response Content: $($response.Content)"
+   6. 4. $response = Invoke-RestMethod -Uri $uri -Method Post -Headers $headers -Body ($body | ConvertTo-Json)  
+   6. 5. Write-Host "Response Status Code: $($response.StatusCode)"  
+   6. 6. Write-Host "Response Content: $($response.Content)"
